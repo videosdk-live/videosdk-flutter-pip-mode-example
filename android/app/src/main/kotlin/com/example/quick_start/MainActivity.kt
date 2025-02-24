@@ -40,11 +40,6 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        //this for send ack back to flutter side
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, PIP).setMethodCallHandler { call, result ->
-
-        }
-
         // this is for the meeting screen pip only 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, MEETING_CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "setMeetingScreen") {
@@ -56,6 +51,7 @@ class MainActivity : FlutterActivity() {
         }        
     }
 
+    // this is for the send ack to the flutter side 
     private fun sendMessageToFlutter(message: String) {
         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, PIP)
             .invokeMethod("sendMessage", hashMapOf("message" to message))
