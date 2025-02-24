@@ -1,0 +1,55 @@
+PODS:
+  - device_info_plus (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - videosdk (0.0.1):
+    - FlutterMacOS
+  - videosdk_webrtc (0.0.4):
+    - FlutterMacOS
+    - WebRTC-SDK (= 114.5735.09)
+  - WebRTC-SDK (114.5735.09)
+
+DEPENDENCIES:
+  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - videosdk (from `Flutter/ephemeral/.symlinks/plugins/videosdk/macos`)
+  - videosdk_webrtc (from `Flutter/ephemeral/.symlinks/plugins/videosdk_webrtc/macos`)
+
+SPEC REPOS:
+  trunk:
+    - WebRTC-SDK
+
+EXTERNAL SOURCES:
+  device_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  path_provider_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
+  videosdk:
+    :path: Flutter/ephemeral/.symlinks/plugins/videosdk/macos
+  videosdk_webrtc:
+    :path: Flutter/ephemeral/.symlinks/plugins/videosdk_webrtc/macos
+
+SPEC CHECKSUMS:
+  device_info_plus: 8025c3cd0ffdd452b52450b6232df918035d0e2c
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  videosdk: 1791c7b58cd6118da35a29d95cf74f2495fa15fd
+  videosdk_webrtc: 4a0303939a165ca8566e05f08e234990b81decaf
+  WebRTC-SDK: efc3e67e0355b1ee14bfe3c91188cada6000cb94
+
+PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
+
+COCOAPODS: 1.16.2
