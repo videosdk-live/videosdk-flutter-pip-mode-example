@@ -97,7 +97,7 @@ class _MeetingScreenState extends State<MeetingScreen>
     _room.on(Events.roomJoined, () {
       print("meeting joined");
       if (Platform.isIOS) {
-        VideoSDK.applyVideoProcessor(videoProcessorName: "Pavan");
+        VideoSDK.applyVideoProcessor(videoProcessorName: "processor");
         platform.invokeMethod("setupPiP");
       }
       setState(() {

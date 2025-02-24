@@ -12,7 +12,7 @@ import videosdk
       
       let bgProcessor = WebRTCFrameProcessor()
       let videoSDK = VideoSDK.getInstance
-      videoSDK.registerVideoProcessor(videoProcessorName: "Pavan", videoProcessor: bgProcessor)
+      videoSDK.registerVideoProcessor(videoProcessorName: "processor", videoProcessor: bgProcessor)
       let controller = window?.rootViewController as! FlutterViewController
       
       let pipChannel = FlutterMethodChannel(name: "pip_channel",binaryMessenger: controller.binaryMessenger)
