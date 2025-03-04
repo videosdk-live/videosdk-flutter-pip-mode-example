@@ -31,14 +31,13 @@ class RTCFrameRenderer: NSObject, RTCVideoRenderer {
     
     // Frame skipping for performance
     private var frameCount: Int = 0
-    private let frameProcessingInterval: Int = 2 // Process every nth frame
+    private let frameProcessingInterval: Int = 2
     
     override init() {
         super.init()
     }
     
     deinit {
-        // Explicitly release the pixel buffer pool
         pixelBufferPool = nil
     }
 
@@ -46,7 +45,6 @@ class RTCFrameRenderer: NSObject, RTCVideoRenderer {
         self.videoView = view
     }
 
-    // Implement RTCVideoRenderer method
     func renderFrame(_ frame: RTCVideoFrame?) {
         guard let frame = frame else {
             return

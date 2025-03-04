@@ -111,7 +111,7 @@ class _MeetingScreenState extends State<MeetingScreen>
           participants.putIfAbsent(participant.id, () => participant);
         });
 
-        if (kIsWeb && Platform.isIOS && participants.isNotEmpty) {
+        if (!kIsWeb && Platform.isIOS && participants.isNotEmpty) {
           participant.on(
             Events.streamEnabled,
             (Stream stream) {
