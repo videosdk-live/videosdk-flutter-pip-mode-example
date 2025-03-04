@@ -25,7 +25,6 @@ class _MeetingScreenState extends State<MeetingScreen>
   var micEnabled = true;
   var camEnabled = true;
   final platform = MethodChannel('pip_channel');
-  static const pip = MethodChannel('com.example.app/native_comm');
   String _messageFromNative = 'No message yet';
 
   Map<String, Participant> participants = {};
@@ -43,6 +42,7 @@ class _MeetingScreenState extends State<MeetingScreen>
         displayName: "John Doe",
         micEnabled: micEnabled,
         camEnabled: camEnabled,
+        multiStream: false,
         defaultCameraIndex: kIsWeb ? 0 : 1);
 
     // Set meeting event listener
@@ -50,10 +50,9 @@ class _MeetingScreenState extends State<MeetingScreen>
 
     // Join room
     _room.join();
-    if (Platform.isAndroid) {
-      MethodChannel('meeting_status_channel')
-          .invokeMethod('setMeetingScreen', true);
-      pip.setMethodCallHandler(_handleMethodCall);
+    if (!kIsWeb && Platform.isAndroid) {
+      platform.invokeMethod('setMeetingScreen', true);
+      platform.setMethodCallHandler(_handleMethodCall);
     }
   }
 
@@ -83,11 +82,10 @@ class _MeetingScreenState extends State<MeetingScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (Platform.isAndroid) {
-      MethodChannel('meeting_status_channel')
-          .invokeMethod('setMeetingScreen', false);
+    if (!kIsWeb && Platform.isAndroid) {
+      platform.invokeMethod('setMeetingScreen', false);
     }
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       platform.invokeMethod("dispose");
     }
     super.dispose();
@@ -96,7 +94,7 @@ class _MeetingScreenState extends State<MeetingScreen>
   void setMeetingEventListener() {
     _room.on(Events.roomJoined, () {
       print("meeting joined");
-      if (Platform.isIOS) {
+      if (!kIsWeb && Platform.isIOS) {
         VideoSDK.applyVideoProcessor(videoProcessorName: "processor");
         platform.invokeMethod("setupPiP");
       }
@@ -112,6 +110,24 @@ class _MeetingScreenState extends State<MeetingScreen>
         setState(() {
           participants.putIfAbsent(participant.id, () => participant);
         });
+
+        if (kIsWeb && Platform.isIOS && participants.isNotEmpty) {
+          participant.on(
+            Events.streamEnabled,
+            (Stream stream) {
+              if (stream.kind == 'video') {
+                print("flutter side stream ");
+                String streamId = stream.id;
+                platform.invokeMethod(
+                  "remoteStream",
+                  {
+                    "remoteId": streamId,
+                  },
+                );
+              }
+            },
+          );
+        }
       },
     );
 
@@ -208,7 +224,7 @@ class _MeetingScreenState extends State<MeetingScreen>
 
   void enterPiPMode() async {
     try {
-      if (Platform.isAndroid) {
+      if (!kIsWeb && Platform.isAndroid) {
         await platform.invokeMethod('enterPiPMode');
         if (mounted) {
           Navigator.push(
@@ -218,7 +234,7 @@ class _MeetingScreenState extends State<MeetingScreen>
             ),
           );
         }
-      } else if (Platform.isIOS) {
+      } else if (!kIsWeb && Platform.isIOS) {
         try {
           await platform.invokeMethod('startPiP');
         } on PlatformException catch (e) {

@@ -8,7 +8,6 @@ class JoinScreen extends StatelessWidget {
   JoinScreen({super.key});
 
   void onCreateButtonPressed(BuildContext context) async {
-    
     await createMeeting().then((meetingId) {
       if (!context.mounted) return;
       Navigator.of(context).push(

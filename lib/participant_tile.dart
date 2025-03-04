@@ -25,6 +25,7 @@ class _ParticipantTileState extends State<ParticipantTile> {
     _initStreamListeners();
     super.initState();
   }
+
   @override
   void setState(fn) {
     if (mounted) {

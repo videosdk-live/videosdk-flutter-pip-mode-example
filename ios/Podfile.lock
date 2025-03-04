@@ -15,10 +15,10 @@ PODS:
   - videosdk (0.0.1):
     - Flutter
     - videosdk_webrtc
-  - videosdk_webrtc (0.0.4):
+  - videosdk_webrtc (0.0.6):
     - Flutter
-    - WebRTC-SDK (= 114.5735.09)
-  - WebRTC-SDK (114.5735.09)
+    - WebRTC-SDK (= 125.6422.06)
+  - WebRTC-SDK (125.6422.06)
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -60,8 +60,8 @@ SPEC CHECKSUMS:
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   videosdk: 54cf046d46212a7de6d45720e83a6c9281a49e3d
-  videosdk_webrtc: c796ef15672144a4a984107f433e45fad86819f2
-  WebRTC-SDK: efc3e67e0355b1ee14bfe3c91188cada6000cb94
+  videosdk_webrtc: 7adfa95fbeebc66037b818dd3416855607a953c4
+  WebRTC-SDK: 79942c006ea64f6fb48d7da8a4786dfc820bc1db
 
 PODFILE CHECKSUM: 504eae5aa78636e3148db5f3ba3794c83df86198
 
