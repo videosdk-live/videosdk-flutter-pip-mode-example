@@ -279,13 +279,9 @@ class _MeetingScreenState extends State<MeetingScreen>
                     if (camEnabled) {
                       var videoStream = _room.localParticipant.streams.values
                           .firstWhere((stream) => stream.kind == 'video');
-                      if (videoStream != null) {
-                        participantStreamIds[_room.localParticipant.id] =
-                            videoStream.id;
-                        if (activeStreamId == null) {
-                          activeStreamId = videoStream.id;
-                        }
-                      }
+                      participantStreamIds[_room.localParticipant.id] =
+                          videoStream.id;
+                      activeStreamId ??= videoStream.id;
                     } else {
                       participantStreamIds.remove(_room.localParticipant.id);
                       if (activeStreamId ==

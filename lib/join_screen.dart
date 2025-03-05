@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'api_call.dart';
 import 'meeting_screen.dart';
 
@@ -7,7 +8,23 @@ class JoinScreen extends StatelessWidget {
 
   JoinScreen({super.key});
 
+  Future<void> requestPermissions(BuildContext context) async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.microphone,
+    ].request();
+
+    if (statuses[Permission.camera] != PermissionStatus.granted ||
+        statuses[Permission.microphone] != PermissionStatus.granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Camera and Microphone permissions are required!")),
+      );
+    }
+  }
+
   void onCreateButtonPressed(BuildContext context) async {
+    await requestPermissions(context);
+    
     await createMeeting().then((meetingId) {
       if (!context.mounted) return;
       Navigator.of(context).push(
@@ -22,10 +39,11 @@ class JoinScreen extends StatelessWidget {
   }
 
   void onJoinButtonPressed(BuildContext context) {
+    requestPermissions(context);
+
     String meetingId = _meetingIdController.text;
     var re = RegExp("\\w{4}\\-\\w{4}\\-\\w{4}");
-    // check meeting id is not null or invaild
-    // if meeting id is vaild then navigate to MeetingScreen with meetingId,token
+    
     if (meetingId.isNotEmpty && re.hasMatch(meetingId)) {
       _meetingIdController.clear();
       Navigator.of(context).push(
@@ -38,7 +56,7 @@ class JoinScreen extends StatelessWidget {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please enter valid meeting id"),
+        content: Text("Please enter a valid meeting ID"),
       ));
     }
   }
