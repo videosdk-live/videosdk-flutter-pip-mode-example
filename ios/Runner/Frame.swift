@@ -290,39 +290,30 @@ class RTCFrameRenderer: NSObject, RTCVideoRenderer {
 }
 
 // MARK: - SplitVideoView
-
 class SplitVideoView: UIView {
     let localVideoView = CustomVideoView()
     let remoteVideoView = CustomVideoView()
-    let aloneLabel = UILabel()
+    let statusLabel = UILabel()
+    private var hasRemoteStream: Bool = false
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError() }
     
     private func setupViews() {
-        // Add local video view to the left side
-        addSubview(localVideoView)
-        localVideoView.translatesAutoresizingMaskIntoConstraints = false
+        [localVideoView, remoteVideoView, statusLabel].forEach {
+            addSubview($0)
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         
-        // Add remote video view to the right side
-        addSubview(remoteVideoView)
-        remoteVideoView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Configure alone label
-        aloneLabel.text = "You are alone in the meeting"
-        aloneLabel.textColor = .white
-        aloneLabel.backgroundColor = .black
-        aloneLabel.textAlignment = .center
-        aloneLabel.numberOfLines = 0
-        aloneLabel.isHidden = true
-        addSubview(aloneLabel)
-        aloneLabel.translatesAutoresizingMaskIntoConstraints = false
+        localVideoView.transform = CGAffineTransform(rotationAngle: .pi/2)
+        statusLabel.textColor = .white
+        statusLabel.backgroundColor = .black
+        statusLabel.textAlignment = .center
+        statusLabel.numberOfLines = 0
         
         NSLayoutConstraint.activate([
             localVideoView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -332,23 +323,30 @@ class SplitVideoView: UIView {
             
             remoteVideoView.leadingAnchor.constraint(equalTo: localVideoView.trailingAnchor),
             remoteVideoView.topAnchor.constraint(equalTo: topAnchor),
-            remoteVideoView.bottomAnchor.constraint(equalTo: bottomAnchor),
             remoteVideoView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            remoteVideoView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            aloneLabel.leadingAnchor.constraint(equalTo: localVideoView.trailingAnchor),
-            aloneLabel.topAnchor.constraint(equalTo: topAnchor),
-            aloneLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            aloneLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
+            statusLabel.leadingAnchor.constraint(equalTo: localVideoView.trailingAnchor),
+            statusLabel.topAnchor.constraint(equalTo: topAnchor),
+            statusLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            statusLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
-        // Apply 90-degree rotation to local video
-        localVideoView.transform = CGAffineTransform(rotationAngle: .pi/2)
-        localVideoView.layer.masksToBounds = true
+        updateViewState()
     }
     
-    func updateRemoteViewVisibility(hasRemote: Bool) {
-        remoteVideoView.isHidden = !hasRemote
-        aloneLabel.isHidden = hasRemote
+    func updateStatus(hasRemote: Bool, message: String? = nil) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.hasRemoteStream = hasRemote
+            self.statusLabel.text = message ?? "You are alone in the meeting"
+            self.updateViewState()
+        }
+    }
+    
+    private func updateViewState() {
+        remoteVideoView.isHidden = !hasRemoteStream
+        statusLabel.isHidden = hasRemoteStream
     }
 }
 
@@ -392,53 +390,52 @@ class PiPManager: NSObject, AVPictureInPictureControllerDelegate {
     static let shared = PiPManager()
     
     // Split view containing both local and remote video views
-    weak var splitVideoView: SplitVideoView?
+    var splitVideoView: SplitVideoView?
     
     static func setupPiP(hasRemote: Bool = false) {
-        guard AVPictureInPictureController.isPictureInPictureSupported() else {
-            return
+            guard AVPictureInPictureController.isPictureInPictureSupported(),
+                  let uiView = UIApplication.shared.keyWindow?.rootViewController?.view else {
+                return
+            }
+            
+            if shared.splitVideoView == nil {
+                let splitVideoView = SplitVideoView(frame: CGRect(x: 0, y: 0, width: 60, height: 30))
+                shared.splitVideoView = splitVideoView
+            }
+            
+            shared.splitVideoView?.updateStatus(hasRemote: hasRemote)
+            
+            let pipVideoCallViewController = AVPictureInPictureVideoCallViewController()
+            self.pipVideoCallViewController = pipVideoCallViewController
+            
+            if let splitVideoView = shared.splitVideoView {
+                MultiStreamFrameRenderer.shared.attachViews(
+                    localView: splitVideoView.localVideoView,
+                    remoteView: splitVideoView.remoteVideoView
+                )
+                pipVideoCallViewController.view.addConstrained(subview: splitVideoView)
+            }
+            
+            pipVideoCallViewController.preferredContentSize = CGSize(width: 60, height: 30)
+            
+            let pipContentSource = AVPictureInPictureController.ContentSource(
+                activeVideoCallSourceView: uiView,
+                contentViewController: pipVideoCallViewController
+            )
+            
+            pipController = AVPictureInPictureController(contentSource: pipContentSource)
+            pipController?.delegate = shared
+            pipController?.canStartPictureInPictureAutomaticallyFromInline = true
+            
+            NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
+                                                 object: nil, queue: .main) { _ in
+                stopPIP()
+            }
         }
-        
-        guard let uiView = UIApplication.shared.keyWindow?.rootViewController?.view else {
-            return
-        }
-        
-        let pipVideoCallViewController = AVPictureInPictureVideoCallViewController()
-        self.pipVideoCallViewController = pipVideoCallViewController
-        
-        // Create split view for local and remote videos
-        let splitVideoView = SplitVideoView(frame: CGRect(x: 0, y: 0, width: 60, height: 30))
-        shared.splitVideoView = splitVideoView
-        shared.splitVideoView?.updateRemoteViewVisibility(hasRemote: hasRemote)
-        
-        // Configure renderers with the appropriate views
-        MultiStreamFrameRenderer.shared.attachViews(
-            localView: splitVideoView.localVideoView,
-            remoteView: splitVideoView.remoteVideoView
-        )
-        
-        // Add split view to PiP content view
-        pipVideoCallViewController.view.addConstrained(subview: splitVideoView)
-        
-        // Set preferred content size to 60x30
-        pipVideoCallViewController.preferredContentSize = CGSize(width: 60, height: 30)
-        
-        let pipContentSource = AVPictureInPictureController.ContentSource(
-            activeVideoCallSourceView: uiView,
-            contentViewController: pipVideoCallViewController
-        )
-        
-        pipController = AVPictureInPictureController(contentSource: pipContentSource)
-        pipController?.delegate = shared
-        
-        pipController?.canStartPictureInPictureAutomaticallyFromInline = true
-        
-        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
-                                               object: nil, queue: .main) { _ in
-            stopPIP()
-        }
-    }
     
+    static func updateRemoteStatus(hasRemote: Bool, message: String? = nil) {
+        shared.splitVideoView?.updateStatus(hasRemote: hasRemote, message: message)
+    }
     static func startPIP() {
         pipController?.startPictureInPicture()
     }
@@ -500,38 +497,35 @@ class FrameProcessor: VideoProcessor {
     
     override func onFrameReceived(_ frame: RTCVideoFrame) -> RTCVideoFrame? {
         guard let buffer = frame.buffer as? RTCCVPixelBuffer,
-              CVPixelBufferGetWidth(buffer.pixelBuffer) > 0 else {
-            print("Invalid frame buffer")
+              CVPixelBufferGetWidth(buffer.pixelBuffer) > 0,
+              !isProcessing else {
             return frame
         }
         
-        guard !isProcessing else { return frame }
-        
         isProcessing = true
-        // Send local frame to the local video view
         MultiStreamFrameRenderer.shared.renderLocalFrame(frame)
         isProcessing = false
         
         return frame
     }
     
-    static func addRemote(remoteId: String) {
-        if remoteId == "Nothing" {
-            DispatchQueue.main.async {
-                PiPManager.shared.splitVideoView?.updateRemoteViewVisibility(hasRemote: false)
-            }
-            return
-        }
-        
-        guard let remoteTrack = FlutterWebRTCPlugin.sharedSingleton()?.remoteTrack(forId: remoteId) as? RTCVideoTrack else {
-            return
-        }
-        print("hii hello ",remoteId)
-        
-        remoteTrack.add(RemoteFrameObserver())
-        
+    static func updateRemote(remoteId: String) {
         DispatchQueue.main.async {
-            PiPManager.shared.splitVideoView?.updateRemoteViewVisibility(hasRemote: true)
+            switch remoteId {
+            case "Nothing":
+                PiPManager.updateRemoteStatus(hasRemote: false)
+                
+            case "No Cam":
+                PiPManager.updateRemoteStatus(hasRemote: false, message: "No camera")
+                
+            default:
+                if let remoteTrack = FlutterWebRTCPlugin.sharedSingleton()?.remoteTrack(forId: remoteId) as? RTCVideoTrack {
+                    PiPManager.updateRemoteStatus(hasRemote: true)
+                    remoteTrack.add(RemoteFrameObserver())
+                } else {
+                    PiPManager.updateRemoteStatus(hasRemote: false, message: "Remote connection failed")
+                }
+            }
         }
     }
 }
@@ -575,18 +569,13 @@ class VideoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupVideoView()
-        
-        // Configure Picture-in-Picture
         PiPManager.setupPiP()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // Ensure resources are properly cleaned up
         splitVideoView.localVideoView.displayLayer.flushAndRemoveImage()
         splitVideoView.remoteVideoView.displayLayer.flushAndRemoveImage()
-        
-        // Clean up PiP resources
         PiPManager.dispose()
     }
     
@@ -597,19 +586,17 @@ class VideoViewController: UIViewController {
         NSLayoutConstraint.activate([
             splitVideoView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             splitVideoView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            splitVideoView.widthAnchor.constraint(equalTo: splitVideoView.heightAnchor, multiplier: 2.0), // 60:30 aspect ratio
+            splitVideoView.widthAnchor.constraint(equalTo: splitVideoView.heightAnchor, multiplier: 2.0),
             splitVideoView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.9)
         ])
         
-        // Configure renderers with the split view
         MultiStreamFrameRenderer.shared.attachViews(
             localView: splitVideoView.localVideoView,
             remoteView: splitVideoView.remoteVideoView
         )
     }
     
-    // Example method to start PiP when a button is tapped
-    @objc func startPiPButtonTapped() {
-        PiPManager.startPIP()
+    func updateRemoteStream(remoteId: String) {
+        FrameProcessor.updateRemote(remoteId: remoteId)
     }
 }

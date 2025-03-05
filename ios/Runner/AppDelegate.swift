@@ -37,7 +37,7 @@ import videosdk
                     result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing remoteId", details: nil))
                     return
                 }
-                FrameProcessor.addRemote(remoteId: remoteId)
+                FrameProcessor.updateRemote(remoteId: remoteId)
                 result(nil)
 
             case "startPiP":
