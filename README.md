@@ -14,7 +14,7 @@ Picture-in-Picture (PiP) mode allows users to continue a video call while using 
 Before running the project, ensure you have:
 
 - Flutter SDK installed ([Install Flutter](https://docs.flutter.dev/get-started/install)).
-- An active VideoSDK API Key [Get API Key](https://app.videosdk.live/api-keys).
+- Valid [VideoSDK Account](https://app.videosdk.live/signup)
 
 ## Installation & Setup
 
