@@ -3,26 +3,21 @@ import Flutter
 import videosdk
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
-    override func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+    // Under the UIScene life cycle the window does not exist yet in
+    // didFinishLaunchingWithOptions, so setup happens here instead.
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+        GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
         // Video SDK setup
         let bgProcessor = FrameProcessor()
         let videoSDK = VideoSDK.getInstance
         videoSDK.registerVideoProcessor(videoProcessorName: "processor", videoProcessor: bgProcessor)
 
-        guard let controller = window?.rootViewController as? FlutterViewController else {
-            return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-        }
-
         // PiP Channel Setup
         let pipChannel = FlutterMethodChannel(
             name: "pip_channel",
-            binaryMessenger: controller.binaryMessenger
+            binaryMessenger: engineBridge.applicationRegistrar.messenger()
         )
 
         pipChannel.setMethodCallHandler { (call, result) in
@@ -56,7 +51,5 @@ import videosdk
                 result(FlutterMethodNotImplemented)
             }
         }
-
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }
