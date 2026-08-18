@@ -381,6 +381,16 @@ class MultiStreamFrameRenderer: NSObject {
     }
 }
 
+private extension UIApplication {
+    /// Root view of the foreground scene's key window.
+    /// `UIApplication.keyWindow` is unusable under the UIScene life cycle.
+    var activeRootView: UIView? {
+        let scenes = connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        return (scene?.keyWindow ?? scene?.windows.first)?.rootViewController?.view
+    }
+}
+
 // MARK: - Enhanced PiP Manager
 class PiPManager: NSObject, AVPictureInPictureControllerDelegate {
     
@@ -394,7 +404,7 @@ class PiPManager: NSObject, AVPictureInPictureControllerDelegate {
     
     static func setupPiP(hasRemote: Bool = false) {
             guard AVPictureInPictureController.isPictureInPictureSupported(),
-                  let uiView = UIApplication.shared.keyWindow?.rootViewController?.view else {
+                  let uiView = UIApplication.shared.activeRootView else {
                 return
             }
             
