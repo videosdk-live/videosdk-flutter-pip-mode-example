@@ -113,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
-  csslib:
-    dependency: transitive
-    description:
-      name: csslib
-      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -137,14 +129,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.7.0"
-  dartdoc:
-    dependency: transitive
-    description:
-      name: dartdoc
-      sha256: f232803d877d6ec4a0bfa72454d3a8d6cbf4519ef09634d9e3faa02d5c3f8de5
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.0.2"
   device_info_plus:
     dependency: transitive
     description:
@@ -256,14 +240,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1"
-  html:
-    dependency: transitive
-    description:
-      name: html
-      sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.6"
   http:
     dependency: "direct main"
     description:
@@ -352,14 +328,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  markdown:
-    dependency: transitive
-    description:
-      name: markdown
-      sha256: ee85086ad7698b42522c6ad42fe195f1b9898e4d974a1af4576c1a3a176cada9
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.3.1"
   matcher:
     dependency: transitive
     description:
@@ -825,10 +793,10 @@ packages:
     dependency: "direct main"
     description:
       name: videosdk
-      sha256: f35fc4fd589b7f5b58f09353c35eec4340e1134db4c0aae8aa3b9504d03b6a75
+      sha256: db7eab7f33e3d436dbaa062d5140075111b019b54f10cf748b514fd0db21c4e1
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.0"
+    version: "3.12.0"
   videosdk_otel:
     dependency: transitive
     description:
@@ -849,10 +817,10 @@ packages:
     dependency: transitive
     description:
       name: videosdk_webrtc
-      sha256: "247e1af3bbefd24f0b848133dcdccfe5d3dad2558bc000b30d2667087bfffee9"
+      sha256: "9226708fa6ee1e7a66fd4abea4765b1f65fa19439c94c2d7f564d984be1d7903"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.17"
+    version: "0.0.18"
   vm_service:
     dependency: transitive
     description:
