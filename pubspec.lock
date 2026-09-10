@@ -540,10 +540,10 @@ packages:
     dependency: transitive
     description:
       name: protobuf
-      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      sha256: de9c9eb2c33f8e933a42932fe1dc504800ca45ebc3d673e6ed7f39754ee4053e
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "4.2.0"
   pub_semver:
     dependency: transitive
     description:
@@ -793,10 +793,10 @@ packages:
     dependency: "direct main"
     description:
       name: videosdk
-      sha256: db7eab7f33e3d436dbaa062d5140075111b019b54f10cf748b514fd0db21c4e1
+      sha256: "4de435970da4c173fdd83ed153d4cdd0259461c717efc8840080c1da2308c6a5"
       url: "https://pub.dev"
     source: hosted
-    version: "3.12.0"
+    version: "4.0.1"
   videosdk_otel:
     dependency: transitive
     description:
@@ -817,10 +817,10 @@ packages:
     dependency: transitive
     description:
       name: videosdk_webrtc
-      sha256: "9226708fa6ee1e7a66fd4abea4765b1f65fa19439c94c2d7f564d984be1d7903"
+      sha256: "7b733fc0ca5b7ef77752dfa72730ebcade5cab35e9efab02e7848ecd255346e7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.18"
+    version: "0.0.19"
   vm_service:
     dependency: transitive
     description:
