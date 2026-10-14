@@ -42,9 +42,9 @@ class _PiPViewState extends State<PiPView> with WidgetsBindingObserver {
       });
     });
 
-    _room.on(Events.participantLeft, (String participantId) {
+    _room.on(Events.participantLeft, (Participant participant, LeaveReason reason) {
       setState(() {
-        participants.remove(participantId);
+        participants.remove(participant.id);
       });
     });
   }

@@ -40,14 +40,16 @@ class _MeetingScreenState extends State<MeetingScreen>
     _room = VideoSDK.createRoom(
         roomId: widget.meetingId,
         token: widget.token,
-        displayName: "John Doe",
+        participantName: "John Doe",
         micEnabled: micEnabled,
         camEnabled: camEnabled,
         multiStream: false,
-        defaultCameraIndex: kIsWeb ? 0 : 1);
+        defaultCamera: FacingMode.FRONT);
 
     setMeetingEventListener();
-    _room.join();
+    _room.join().catchError((Object e) {
+      debugPrint('MeetingScreen: join failed - $e');
+    });
 
     if (!kIsWeb && Platform.isAndroid) {
       platform.invokeMethod('setMeetingScreen', true);
@@ -96,7 +98,7 @@ class _MeetingScreenState extends State<MeetingScreen>
   void setMeetingEventListener() {
     _room.on(Events.roomJoined, () {
       if (!kIsWeb && Platform.isIOS && !_pipInitialized) {
-        VideoSDK.applyVideoProcessor(videoProcessorName: "processor");
+        _room.setVideoProcessor("processor");
         platform.invokeMethod("setupPiP").then((_) {
           _pipInitialized = true;
         });
@@ -112,11 +114,11 @@ class _MeetingScreenState extends State<MeetingScreen>
       setState(() {
         participants[participant.id] = participant;
         bool hasVideoStream =
-            participant.streams.values.any((stream) => stream.kind == 'video');
+            participant.streams.values.any((stream) => stream.kind == MediaType.VIDEO);
         participantCameraStates[participant.id] = hasVideoStream;
         if (hasVideoStream) {
           var videoStream = participant.streams.values
-              .firstWhere((stream) => stream.kind == 'video');
+              .firstWhere((stream) => stream.kind == MediaType.VIDEO);
           participantStreamIds[participant.id] = videoStream.id;
         }
 
@@ -134,8 +136,8 @@ class _MeetingScreenState extends State<MeetingScreen>
         }
       });
 
-      participant.on(Events.streamEnabled, (Stream stream) {
-        if (stream.kind == 'video') {
+      participant.on(Events.streamEnabled, (RTCStream stream) {
+        if (stream.kind == MediaType.VIDEO) {
           setState(() {
             participantCameraStates[participant.id] = true;
             participantStreamIds[participant.id] = stream.id;
@@ -150,8 +152,8 @@ class _MeetingScreenState extends State<MeetingScreen>
         }
       });
 
-      participant.on(Events.streamDisabled, (Stream stream) {
-        if (stream.kind == 'video') {
+      participant.on(Events.streamDisabled, (RTCStream stream) {
+        if (stream.kind == MediaType.VIDEO) {
           setState(() {
             participantCameraStates[participant.id] = false;
             if (activeStreamId == participantStreamIds[participant.id]) {
@@ -171,7 +173,8 @@ class _MeetingScreenState extends State<MeetingScreen>
       });
     });
 
-    _room.on(Events.participantLeft, (String participantId) {
+    _room.on(Events.participantLeft, (Participant participant, LeaveReason reason) {
+      final participantId = participant.id;
       setState(() {
         participants.remove(participantId);
         participantCameraStates.remove(participantId);
@@ -197,9 +200,9 @@ class _MeetingScreenState extends State<MeetingScreen>
       }
     });
 
-    _room.on(Events.error, (error) {
+    _room.on(Events.error, (VideoSDKError error) {
       debugPrint(
-          'MeetingScreen: VideoSDK Error - Code: ${error['code']}, Name: ${error['name']}, Message: ${error['message']}');
+          'MeetingScreen: VideoSDK Error - Code: ${error.code}, Name: ${error.name}, Message: ${error.message}');
     });
 
     _room.on(Events.roomLeft, () {
@@ -278,7 +281,7 @@ class _MeetingScreenState extends State<MeetingScreen>
                         camEnabled;
                     if (camEnabled) {
                       var videoStream = _room.localParticipant.streams.values
-                          .firstWhere((stream) => stream.kind == 'video');
+                          .firstWhere((stream) => stream.kind == MediaType.VIDEO);
                       participantStreamIds[_room.localParticipant.id] =
                           videoStream.id;
                       activeStreamId ??= videoStream.id;
