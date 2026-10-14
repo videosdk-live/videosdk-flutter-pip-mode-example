@@ -19,9 +19,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.quick_start"
-        // Fix the minSdk syntax to match the others
-        minSdkVersion = flutter.minSdkVersion
-        targetSdk = 34
+        minSdkVersion = 24
+        targetSdk = 36
+        // The native SDK ships arm64-v8a only
+        ndk { abiFilters "arm64-v8a" }
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:videosdk/videosdk.dart';
 import 'api_call.dart';
 import 'meeting_screen.dart';
 
@@ -9,13 +9,11 @@ class JoinScreen extends StatelessWidget {
   JoinScreen({super.key});
 
   Future<void> requestPermissions(BuildContext context) async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.camera,
-      Permission.microphone,
-    ].request();
+    final granted = await VideoSDK.requestPermissions();
 
-    if (statuses[Permission.camera] != PermissionStatus.granted ||
-        statuses[Permission.microphone] != PermissionStatus.granted) {
+    if (!context.mounted) return;
+
+    if (granted['audio'] != true || granted['video'] != true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Camera and Microphone permissions are required!")),
       );
